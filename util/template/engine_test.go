@@ -94,10 +94,10 @@ type {{.TypePascal}} struct {
 		style    naming.Style
 		expected string
 	}{
-		{"snake", naming.StyleSnake, "user.go"},
-		{"camel", naming.StyleCamel, "user.go"},
-		{"pascal", naming.StylePascal, "User.go"},
-		{"kebab", naming.StyleKebab, "user.go"},
+		{"snake", naming.StyleSnake, "user_model.go"},
+		{"camel", naming.StyleCamel, "userModel.go"},
+		{"pascal", naming.StylePascal, "UserModel.go"},
+		{"kebab", naming.StyleKebab, "user-model.go"},
 	}
 
 	for _, tc := range testCases {
@@ -329,7 +329,7 @@ type {{.TypePascal}} struct {
 	assert.NoError(t, err)
 
 	// 验证输出文件是否存在
-	outputFile := filepath.Join(outputDir, "user.go")
+	outputFile := filepath.Join(outputDir, "user_model.go")
 	_, err = os.Stat(outputFile)
 	assert.NoError(t, err)
 
@@ -393,7 +393,7 @@ func TestGenerateWithEmptyTemplate(t *testing.T) {
 	assert.NoError(t, err)
 
 	// 验证输出文件是否存在
-	outputFile := filepath.Join(outputDir, "user.go")
+	outputFile := filepath.Join(outputDir, "user_model.go")
 	_, err = os.Stat(outputFile)
 	assert.NoError(t, err)
 }

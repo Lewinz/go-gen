@@ -13,6 +13,9 @@ var (
 	templateDir string
 	fileStyle   string
 
+	// Default template repository
+	defaultTemplate = "git@github.com:Lewinz/go-gen.git"
+
 	// modelCmd is the model generation command
 	modelCmd = &cobra.Command{
 		Use:   "model",
@@ -26,6 +29,11 @@ var (
 		Short: "Generate MongoDB model code",
 		Long:  `Generate MongoDB model code with specified type and naming style.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Use default template if not specified
+			if templateDir == "" {
+				templateDir = defaultTemplate
+			}
+
 			// Create base generator
 			base := generator.NewBaseGenerator(typeName, outputDir, templateDir, fileStyle)
 
@@ -45,7 +53,7 @@ func init() {
 	// Add common parameters
 	modelCmd.PersistentFlags().StringVar(&typeName, "type", "", "Model type name (required)")
 	modelCmd.PersistentFlags().StringVar(&outputDir, "dir", "", "Output directory (required)")
-	modelCmd.PersistentFlags().StringVar(&templateDir, "template", "", "Template directory (required)")
+	modelCmd.PersistentFlags().StringVar(&templateDir, "template", "", "Template directory or Git repository URL (default: "+defaultTemplate+")")
 	modelCmd.PersistentFlags().StringVar(&fileStyle, "file-style", "snake", "File naming style (snake|camel|pascal|kebab)")
 
 	// Set required parameters
@@ -53,9 +61,6 @@ func init() {
 		panic(err)
 	}
 	if err := modelCmd.MarkPersistentFlagRequired("dir"); err != nil {
-		panic(err)
-	}
-	if err := modelCmd.MarkPersistentFlagRequired("template"); err != nil {
 		panic(err)
 	}
 }

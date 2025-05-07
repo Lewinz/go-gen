@@ -6,25 +6,29 @@
 
 ## 特性
 
-- 支持多种代码生成器（MongoDB、MySQL 等）
+- MongoDB 模型生成
 - 可自定义命名规范
 - 基于模板的代码生成
-- 可扩展的架构设计
+- 跨平台支持（Linux、macOS、Windows）
+- 支持多种 CPU 架构（amd64、arm64）
 
-## 安装
+## 快速开始
+
+### 安装
 
 ```bash
+# 使用 Go 安装
 go install github.com/lewinz/go-gen@latest
 ```
 
-## 使用方法
-
-### 基本用法
+### 基本使用
 
 ```bash
 # 生成 MongoDB 模型
-go-gen model mongo --type user --dir ./internal/model --template ./template
+go-gen model mongo --type user --dir ./internal/model
 ```
+
+## 详细使用说明
 
 ### 命令行选项
 
@@ -32,38 +36,53 @@ go-gen model mongo --type user --dir ./internal/model --template ./template
 # 必需参数
 --type string     模型类型名称（例如：user、product）
 --dir string      输出目录
---template string 模板目录
 
 # 可选参数
---file-style string   文件命名风格（snake|camel|pascal|kebab）（默认 "snake"）
+--template string 模板目录或 Git 仓库 URL（默认：git@github.com:Lewinz/go-gen.git）
+--file-style string   文件命名风格（snake|camel|pascal|kebab）（默认为 "snake"）
 ```
 
 ### 命名规范
 
 工具在模板中支持四种命名规范：
 
-- `{{.TypeSnake}}`: 下划线命名（例如：user_profile）
+- `{{.TypeSnake}}`: 蛇形命名（例如：user_profile）
 - `{{.TypeCamel}}`: 驼峰命名（例如：userProfile）
 - `{{.TypePascal}}`: 帕斯卡命名（例如：UserProfile）
 - `{{.TypeKebab}}`: 短横线命名（例如：user-profile）
 
-### 使用示例
+### 示例
 
-1. 使用默认命名生成 MongoDB 模型：
+1. 使用默认命名和模板生成 MongoDB 模型：
 ```bash
-go-gen model mongo --type user --dir ./internal/model --template ./template
+go-gen model mongo --type user --dir ./internal/model
 ```
 
-2. 使用自定义文件命名生成：
+2. 使用自定义文件命名：
 ```bash
 go-gen model mongo \
   --type user \
   --dir ./internal/model \
-  --template ./template \
   --file-style camel
 ```
 
-## 模板说明
+3. 使用自定义模板：
+```bash
+go-gen model mongo \
+  --type user \
+  --dir ./internal/model \
+  --template ./template
+```
+
+4. 从 Git 模板仓库生成：
+```bash
+go-gen model mongo \
+  --type user \
+  --dir ./internal/model \
+  --template https://github.com/your-org/go-templates
+```
+
+## 模板
 
 ### 模板文件
 
@@ -72,30 +91,39 @@ go-gen model mongo \
 ```
 template/
 └── mongo/
-    ├── model.tpl      # 生成: {type_snake}.go
-    │                  # 示例: user.go, product.go
-    │                  # 包含: 结构体定义和 CRUD 操作
+    ├── model.tpl      # 生成：{type_snake}.go
+    │                  # 示例：user.go、product.go
+    │                  # 包含：结构体定义和 CRUD 操作
     │
-    └── model_test.tpl # 生成: {type_snake}_test.go
-                       # 示例: user_test.go, product_test.go
-                       # 包含: 模型的单元测试
+    └── model_test.tpl # 生成：{type_snake}_test.go
+                       # 示例：user_test.go、product_test.go
+                       # 包含：模型的单元测试
 ```
 
 ### 模板变量
 
-模板中可以使用以下变量：
+模板中可用的变量：
 
-- `{{.TypeSnake}}`: 下划线命名（例如：user_profile）
-- `{{.TypeCamel}}`: 驼峰命名（例如：userProfile）
-- `{{.TypePascal}}`: 帕斯卡命名（例如：UserProfile）
-- `{{.TypeKebab}}`: 短横线命名（例如：user-profile）
+- `{{.TypeSnake}}`: 蛇形命名的类型名（例如：user_profile）
+- `{{.TypeCamel}}`: 驼峰命名的类型名（例如：userProfile）
+- `{{.TypePascal}}`: 帕斯卡命名的类型名（例如：UserProfile）
+- `{{.TypeKebab}}`: 短横线命名的类型名（例如：user-profile）
 - `{{.PackageName}}`: 生成文件的包名
 
-### 示例输出
+## 高级用法
 
-模板输入：
-```go
-// {{.TypePascal}} 是 MongoDB 模型
+### 使用自定义模板
+
+1. 创建模板目录：
+```bash
+mkdir -p templates/mongo
+```
+
+2. 创建模板文件：
+```bash
+# templates/mongo/model.tpl
+package {{.PackageName}}
+
 type {{.TypePascal}} struct {
     ID        string    `bson:"_id,omitempty"`
     CreatedAt time.Time `bson:"created_at"`
@@ -103,21 +131,32 @@ type {{.TypePascal}} struct {
 }
 ```
 
-使用类型 "user_profile" 时，生成：
-```go
-// UserProfile 是 MongoDB 模型
-type UserProfile struct {
-    ID        string    `bson:"_id,omitempty"`
-    CreatedAt time.Time `bson:"created_at"`
-    UpdatedAt time.Time `bson:"updated_at"`
-}
+3. 生成代码：
+```bash
+go-gen model mongo --type user --dir ./internal/model --template ./templates
 ```
 
-## 贡献指南
+### 使用 Git 模板
+
+你可以使用 Git 仓库中的模板：
+
+```bash
+go-gen model mongo \
+  --type user \
+  --dir ./internal/model \
+  --template https://github.com/your-org/go-templates
+```
+
+工具会：
+1. 克隆仓库
+2. 在本地缓存
+3. 用于代码生成
+
+## 贡献
 
 1. Fork 本仓库
-2. 创建您的特性分支（`git checkout -b feature/amazing-feature`）
-3. 提交您的更改（`git commit -m '添加某个特性'`）
+2. 创建你的特性分支（`git checkout -b feature/amazing-feature`）
+3. 提交你的更改（`git commit -m '添加一些很棒的特性'`）
 4. 推送到分支（`git push origin feature/amazing-feature`）
 5. 开启一个 Pull Request
 

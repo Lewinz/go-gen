@@ -1,0 +1,19 @@
+coverage:
+  status:
+    project:
+      default:
+        target: 60%    # 项目整体覆盖率目标
+        threshold: 1%   # 允许覆盖率下降的阈值
+    patch:
+      default:
+        target: 60%    # 新增代码的覆盖率目标
+        threshold: 1%   # 允许覆盖率下降的阈值
+
+comment:
+  layout: "reach, diff, flags, files"
+  behavior: default
+  require_changes: false  # 即使没有覆盖率变化也发表评论
+
+ignore:
+  - "**/*_test.go"       # 忽略测试文件
+  - "mock/**/*"          # 忽略 mock 文件 

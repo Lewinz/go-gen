@@ -1,3 +1,5 @@
+version: 2
+
 before:
   hooks:
     - go mod tidy
@@ -20,7 +22,7 @@ builds:
       - -X main.version={{.Version}}
 
 archives:
-  - format: tar.gz
+  - id: go-gen
     name_template: >-
       {{ .ProjectName }}_
       {{- title .Os }}_
